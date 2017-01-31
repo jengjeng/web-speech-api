@@ -5,7 +5,7 @@
   "author": "Jeng <kinkongjeng@hotmail.com>",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack-dev-server --open --inline --hot",
+    "dev": "rm -rf dist && cross-env NODE_ENV=development webpack-dev-server --open --inline --hot",
     "build": "rm -rf dist && cross-env NODE_ENV=production webpack --progress --hide-modules",
     "deploy": "mkdir _dist && mv dist _dist && mv _dist dist && cp index.html dist/ && push-dir --dir=dist --branch=gh-pages --cleanup"
   },
