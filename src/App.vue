@@ -96,7 +96,9 @@
     mounted: function () {
       var self = this
       this.$nextTick(function () {
-        self.themTalk(self.synthesis.support ? 'สวัสดี' : 'Your browser does not support for Speech Synthesis', !self.synthesis.support)
+        self.themTalk(self.synthesis.support ? 'สวัสดี' : 'Your browser does not support for Speech Synthesis', !self.synthesis.support, function() {
+          self.$refs.input.focus()
+        })
       })
     },
     watch: {
@@ -112,7 +114,7 @@
           time: new Date()
         }
       },
-      themTalk: function (message, force) {
+      themTalk: function (message, force, callback) {
         if (this.loading || !message.trim()) return
         var self = this
         self.loading = true
@@ -126,13 +128,16 @@
         if (!force && self.isChatLive && !self.checkThaiLanguage(message)) {
           self.getChatResponse(message).then(function (data) {
             putMessage(data || message)
+            callback && callback()
           }).catch(function () {
             self.isChatLive = false
             putMessage(message)
+            callback && callback()
           })
         } else {
           setTimeout(function () {
             putMessage(message)
+            callback && callback()
           }, Math.random() * 2000 + 500)
         }
       },
@@ -149,7 +154,6 @@
       },
       onCompleteTalk: function () {
         var self = this
-        self.$refs.input.focus()
         self.$nextTick(function () {
           self.$refs.messages.scrollTop = this.$refs.messages.scrollHeight
         })
