@@ -55,13 +55,11 @@
         config: {
           th: {
             lang: 'th-TH',
-            pitch: 2,
-            voiceIndex: 0
+            pitch: 2
           },
           en: {
             lang: 'en-US',
-            pitch: 2,
-            voiceIndex: 6
+            pitch: 2
           }
         },
         lastMsg: {}
@@ -190,12 +188,9 @@
           // }
           self.synthesis.obj = new SpeechSynthesisUtterance()
           for (var k in config) {
-            if (k !== 'voiceIndex')
-              self.synthesis.obj[k] = config[k]
+            self.synthesis.obj[k] = config[k]
           }
-          self.synthesis.obj.voice = speechSynthesis.getVoices().filter(function (voice) {
-            return voice.lang.indexOf(langKey) >= 0;
-          })[config.voiceIndex];
+          self.synthesis.obj.voice = langKey === 'th' ? self.getThaiVoice() : self.getEngVoice()
           self.synthesis.obj.text = self.synthesis.message
           setTimeout(function() {
             speechSynthesis.speak(self.synthesis.obj)
@@ -203,6 +198,21 @@
           }, 200)
         }
         self.$refs.speakEvent.onclick('force')
+      },
+      getThaiVoice: function () {
+        return this.filterVoice(v => v.lang === 'th-TH')
+          || this.filterVoice(v => v.lang.indexOf('th') >= 0)
+          || this.filterVoice(v => v.lang === '')
+      },
+      getEngVoice: function () {
+        return this.filterVoice(v => v.name === 'Samantha')
+          || this.filterVoice(v => v.lang === 'en-US' && v.name.toLowerCase().indexOf('female') >= 0)
+          || this.filterVoice(v => v.name === 'native')
+          || this.filterVoice(v => v.lang.indexOf('en') >= 0 && v.name.toLowerCase().indexOf('female') >= 0)
+          || this.filterVoice(v => v.lang.indexOf('en'))
+      },
+      filterVoice: function (cb) {
+        return speechSynthesis.getVoices().filter(cb)[0]
       },
       startListenVoiceCommands: function () {
         if (this.isListening) return
