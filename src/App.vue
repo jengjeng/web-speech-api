@@ -96,7 +96,7 @@
     mounted: function () {
       var self = this
       this.$nextTick(function () {
-        self.themTalk(synthesis.support ? 'สวัสดี' : 'Your browser does not support for Speech Synthesis')
+        self.themTalk(self.synthesis.support ? 'สวัสดี' : 'Your browser does not support for Speech Synthesis')
       })
     },
     watch: {
