@@ -202,14 +202,9 @@
       getThaiVoice: function () {
         return this.filterVoice(v => v.lang === 'th-TH')
           || this.filterVoice(v => v.lang.indexOf('th') >= 0)
-          || this.filterVoice(v => v.lang === '')
       },
       getEngVoice: function () {
         return this.filterVoice(v => v.name === 'Samantha')
-          || this.filterVoice(v => v.lang === 'en-US' && v.name.toLowerCase().indexOf('female') >= 0)
-          || this.filterVoice(v => v.name === 'native')
-          || this.filterVoice(v => v.lang.indexOf('en') >= 0 && v.name.toLowerCase().indexOf('female') >= 0)
-          || this.filterVoice(v => v.lang.indexOf('en'))
       },
       filterVoice: function (cb) {
         return speechSynthesis.getVoices().filter(cb)[0]
