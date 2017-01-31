@@ -96,9 +96,11 @@
     mounted: function () {
       var self = this
       this.$nextTick(function () {
-        self.themTalk(self.synthesis.support ? 'สวัสดี' : 'Your browser does not support for Speech Synthesis', !self.synthesis.support, function() {
-          self.$refs.input.focus()
-        })
+        self.themTalk(self.synthesis.support ? 'สวัสดี' : 'Your browser does not support for Speech Synthesis', !
+          self.synthesis.support,
+          function () {
+            self.$refs.input.focus()
+          })
       })
     },
     watch: {
@@ -163,18 +165,24 @@
       },
       speak: function (message) {
         if (!this.synthesis.support) return
+        var self = this
         var langKey = this.checkThaiLanguage(message) ? 'th' : 'en'
         var config = this.synthesis.config[langKey]
-        this.synthesis.obj = new SpeechSynthesisUtterance()
-        for (var k in config) {
-          if (k !== 'voiceIndex')
-            this.synthesis.obj[k] = config[k]
+
+        self.$refs.input.onchange = function () {
+          self.synthesis.obj = new SpeechSynthesisUtterance()
+          for (var k in config) {
+            if (k !== 'voiceIndex')
+              self.synthesis.obj[k] = config[k]
+          }
+          self.synthesis.obj.voice = speechSynthesis.getVoices().filter(function (voice) {
+            return voice.lang.indexOf(langKey) >= 0;
+          })[config.voiceIndex];
+          self.synthesis.obj.text = message
+          speechSynthesis.speak(self.synthesis.obj)
         }
-        this.synthesis.obj.voice = speechSynthesis.getVoices().filter(function (voice) {
-          return voice.lang.indexOf(langKey) >= 0;
-        })[config.voiceIndex];
-        this.synthesis.obj.text = message
-        speechSynthesis.speak(this.synthesis.obj)
+        self.$refs.input.onchange()
+        self.$refs.input.onchange = undefined
       },
       startListenVoiceCommands: function () {
         if (this.isListening) return
@@ -220,5 +228,5 @@
   }
 </script>
 <style>
-@import './assets/style.css';
+  @import './assets/style.css';
 </style>
