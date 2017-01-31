@@ -18,7 +18,7 @@
           <message-loading v-if="loading" :image="user.image"></message-loading>
         </div>
       </div>
-      <form class="message-box" @submit.prevent="meTalk(input)">
+      <form ref="speakEvent" class="message-box" @submit.prevent="meTalk(input)">
         <div class="microphone" v-if="recognition.support" :class="{'is-listening': isListening }" @click="startListenVoiceCommands">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M12 16c2.206 0 4-1.795 4-4v-6c0-2.206-1.794-4-4-4s-4 1.794-4 4v6c0 2.205 1.794 4 4 4z"></path>
@@ -26,7 +26,7 @@
           </svg>
         </div>
         <input ref="input" v-model="input" type="text" class="message-input" placeholder="Type message...">
-        <button type="submit" class="message-submit">Send</button>
+        <button ref="submit" type="submit" class="message-submit">Send</button>
       </form>
     </div>
     <p id="P_1">
@@ -63,7 +63,8 @@
             pitch: 2,
             voiceIndex: 6
           }
-        }
+        },
+        lastMsg: {}
       },
       recognition: {
         support: false,
@@ -113,7 +114,8 @@
         return {
           type: type,
           content: message,
-          time: new Date()
+          time: new Date(),
+          id: Math.random().toString(36).slice(2)
         }
       },
       themTalk: function (message, force, callback) {
@@ -123,7 +125,7 @@
         var putMessage = function (message) {
           var msg = self.createMessage('them', message)
           self.messages.push(msg)
-          self.speak(message)
+          self.speak(msg)
           self.loading = false
           self.onCompleteTalk()
         }
@@ -163,13 +165,18 @@
       resetForm: function () {
         this.input = ''
       },
-      speak: function (message) {
+      speak: function (msg) {
         if (!this.synthesis.support) return
         var self = this
-        var langKey = this.checkThaiLanguage(message) ? 'th' : 'en'
+        var langKey = this.checkThaiLanguage(msg.content) ? 'th' : 'en'
         var config = this.synthesis.config[langKey]
 
-        self.$refs.input.onchange = function () {
+        self.synthesis.message = msg.content
+
+        self.$refs.speakEvent.onclick = function () {
+          if (self.synthesis.lastMsg.id === msg.id) {
+            self.synthesis.message = ''
+          }
           self.synthesis.obj = new SpeechSynthesisUtterance()
           for (var k in config) {
             if (k !== 'voiceIndex')
@@ -178,11 +185,16 @@
           self.synthesis.obj.voice = speechSynthesis.getVoices().filter(function (voice) {
             return voice.lang.indexOf(langKey) >= 0;
           })[config.voiceIndex];
-          self.synthesis.obj.text = message
-          speechSynthesis.speak(self.synthesis.obj)
+          self.synthesis.obj.text = self.synthesis.message
+          setTimeout(function() {
+            speechSynthesis.speak(self.synthesis.obj)
+            self.synthesis.lastMsg = msg
+          }, 200)
         }
-        self.$refs.input.onchange()
-        self.$refs.input.onchange = undefined
+        self.$refs.speakEvent.onclick()
+        // !self.synthesis._init && self.$refs.speakEvent.onclick()
+        // self.synthesis._init = true
+        // self.$refs.submit.onclick = undefined
       },
       startListenVoiceCommands: function () {
         if (this.isListening) return
