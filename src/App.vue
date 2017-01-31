@@ -175,19 +175,19 @@
         self.synthesis.message = msg.content
 
         self.$refs.speakEvent.onclick = function (e) {
-          if (!self.isMobile) {
-            self.synthesis._init = true
-          }
-          if (e !== 'force') {
-            if (self.synthesis._init) {
-              return
-            } else {
-              self.synthesis._init = true
-            }
-          }
-          // if (self.synthesis.lastMsg.id === msg.id) {
-          //   self.synthesis.message = ''
+          // if (!self.isMobile) {
+          //   self.synthesis._init = true
           // }
+          // if (e !== 'force') {
+          //   if (self.synthesis._init) {
+          //     return
+          //   } else {
+          //     self.synthesis._init = true
+          //   }
+          // }
+          if (self.synthesis.lastMsg.id === msg.id) {
+            self.synthesis.message = ''
+          }
           self.synthesis.obj = new SpeechSynthesisUtterance()
           for (var k in config) {
             if (k !== 'voiceIndex')
@@ -203,9 +203,6 @@
           }, 200)
         }
         self.$refs.speakEvent.onclick('force')
-        // !self.synthesis._init && self.$refs.speakEvent.onclick()
-        // self.synthesis._init = true
-        // self.$refs.submit.onclick = undefined
       },
       startListenVoiceCommands: function () {
         if (this.isListening) return
