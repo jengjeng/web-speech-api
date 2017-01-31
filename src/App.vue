@@ -173,10 +173,17 @@
 
         self.synthesis.message = msg.content
 
-        self.$refs.speakEvent.onclick = function () {
-          if (self.synthesis.lastMsg.id === msg.id) {
-            self.synthesis.message = ''
+        self.$refs.speakEvent.onclick = function (e) {
+          if (e !== 'force') {
+            if (self.synthesis._init) {
+              return
+            } else {
+              self.synthesis._init = true
+            }
           }
+          // if (self.synthesis.lastMsg.id === msg.id) {
+          //   self.synthesis.message = ''
+          // }
           self.synthesis.obj = new SpeechSynthesisUtterance()
           for (var k in config) {
             if (k !== 'voiceIndex')
@@ -191,7 +198,7 @@
             self.synthesis.lastMsg = msg
           }, 200)
         }
-        self.$refs.speakEvent.onclick()
+        self.$refs.speakEvent.onclick('force')
         // !self.synthesis._init && self.$refs.speakEvent.onclick()
         // self.synthesis._init = true
         // self.$refs.submit.onclick = undefined
